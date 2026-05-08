@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% block title %}Заявление №{{ application.id }} | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <!-- Заголовок -->
+    <div class="card-custom mb-4" style="background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white;">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="fw-bold mb-1">Заявление №{{ application.id }}</h3>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.7);">
+                        от {{ application.submission_date|date:"d.m.Y H:i" }}
+                    </p>
+                </div>
+                <div>
+                    {% if application.status == 'accepted' %}
+                    <span class="badge bg-success fs-6">✅ Зачислен</span>
+                    {% elif application.status == 'agreement_signed' %}
+                    <span class="badge bg-warning fs-6">📝 Согласие подписано</span>
+                    {% else %}
+                    <span class="badge bg-info fs-6">📄 {{ application.get_status_display }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Основная информация -->
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>Информация о заявлении
+                    </h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3" style="background: #f5f7fa;">
+                                <small class="text-muted">Специальность</small>
+                                <p class="fw-bold mb-0">{{ application.specialization.name }}</p>
+                                <small class="text-muted">{{ application.specialization.code }}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3" style="background: #f5f7fa;">
+                                <small class="text-muted">Приоритет</small>
+                                <p class="fw-bold mb-0">{{ application.get_priority_display }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3" style="background: #f5f7fa;">
+                                <small class="text-muted">Сумма баллов</small>
+                                <p class="fw-bold fs-4 text-primary mb-0">{{ total_score }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Результаты экзаменов -->
+            <div class="card-custom mt-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fas fa-clipboard-check me-2 text-success"></i>Результаты экзаменов
+                    </h5>
+                    
+                    {% if exam_results %}
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Предмет</th>
+                                    <th>Балл</th>
+                                    <th>Тип</th>
+                                    <th>Прогресс</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for res in exam_results %}
+                                <tr>
+                                    <td><strong>{{ res.subject }}</strong></td>
+                                    <td>
+                                        <span class="fw-bold text-primary">{{ res.score }}</span>
+                                        / 100
+                                    </td>
+                                    <td>
+                                        {% if res.is_ege %}
+                                        <span class="badge bg-info">ЕГЭ</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Внутренний</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 8px; border-radius: 10px;">
+                                            <div class="progress-bar bg-success" style="width: {% widthratio res.score 100 100 %}%;"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f5f7fa;">
+                                    <td><strong>ИТОГО</strong></td>
+                                    <td colspan="3"><strong class="fs-5 text-primary">{{ total_score }}</strong> / 300</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-hourglass-half" style="font-size: 3rem; color: #ccc;"></i>
+                        <p class="mt-3 text-muted">Результаты экзаменов пока не добавлены</p>
+                        <small class="text-muted">Они появятся после обработки вашего заявления приемной комиссией</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <!-- Действия -->
+            <div class="card-custom mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-cogs me-2"></i>Действия
+                    </h5>
+                    
+                    {% if not application.is_agreement_signed and application.status == 'submitted' %}
+                    <a href="{% url 'sign_agreement' application.pk %}" class="btn btn-success btn-modern w-100 mb-2">
+                        <i class="fas fa-check-circle me-2"></i>Подписать согласие
+                    </a>
+                    <div class="alert alert-warning small mb-0">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Подписание согласия — обязательное условие для зачисления
+                    </div>
+                    {% elif application.is_agreement_signed %}
+                    <div class="alert alert-success small mb-0">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Согласие на зачисление подписано {{ application.agreement_date|date:"d.m.Y" }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Хронология -->
+            <div class="card-custom">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-history me-2"></i>Хронология
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3 pb-3 border-bottom">
+                            <small class="text-muted">{{ application.submission_date|date:"d.m.Y H:i" }}</small>
+                            <p class="mb-0 fw-bold">Заявление подано</p>
+                        </li>
+                        {% if application.is_agreement_signed %}
+                        <li class="mb-3 pb-3 border-bottom">
+                            <small class="text-muted">{{ application.agreement_date|date:"d.m.Y H:i" }}</small>
+                            <p class="mb-0 fw-bold text-success">Подписано согласие</p>
+                        </li>
+                        {% endif %}
+                        {% if application.status == 'accepted' %}
+                        <li class="mb-0">
+                            <small class="text-muted">{{ application.updated_at|date:"d.m.Y H:i" }}</small>
+                            <p class="mb-0 fw-bold text-success">Зачислен</p>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопка назад -->
+    <div class="mt-4">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-modern">
+            <i class="fas fa-arrow-left me-2"></i>Вернуться в личный кабинет
+        </a>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}Личный кабинет | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Приветствие -->
+    <div class="card-custom mb-4" style="background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white;">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="fw-bold mb-2">
+                        <i class="fas fa-hand-sparkles me-2"></i>Добро пожаловать, {{ applicant.user.first_name }}!
+                    </h2>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.8);">
+                        Статус: 
+                        <span class="badge bg-light text-dark ms-2">
+                            {{ applicant.get_status_display }}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <i class="fas fa-user-graduate" style="font-size: 4rem; color: rgba(255,255,255,0.15);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Заявления -->
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold mb-0"><i class="fas fa-file-alt me-2"></i>Мои заявления</h4>
+                        <a href="{% url 'create_application' %}" class="btn btn-accent btn-modern">
+                            <i class="fas fa-plus me-2"></i>Подать заявление
+                        </a>
+                    </div>
+                    
+                    {% if applications %}
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Специальность</th>
+                                    <th>Приоритет</th>
+                                    <th>Статус</th>
+                                    <th>Баллы</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in applications %}
+                                <tr>
+                                    <td><strong>{{ app.specialization.name }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-info rounded-pill">{{ app.get_priority_display }}</span>
+                                    </td>
+                                    <td>
+                                        {% if app.status == 'draft' %}
+                                        <span class="badge-status badge-draft">{{ app.get_status_display }}</span>
+                                        {% elif app.status == 'submitted' %}
+                                        <span class="badge-status badge-submitted">{{ app.get_status_display }}</span>
+                                        {% elif app.status == 'agreement_signed' %}
+                                        <span class="badge-status badge-agreement">{{ app.get_status_display }}</span>
+                                        {% elif app.status == 'recommended' %}
+                                        <span class="badge-status badge-recommended">{{ app.get_status_display }}</span>
+                                        {% elif app.status == 'accepted' %}
+                                        <span class="badge-status badge-accepted">{{ app.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-primary">{{ app.total_score|default:"0" }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'application_detail' app.pk %}" class="btn btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if not app.is_agreement_signed and app.status == 'submitted' %}
+                                            <a href="{% url 'sign_agreement' app.pk %}" class="btn btn-success">
+                                                <i class="fas fa-check me-1"></i>Согласие
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                        <p class="mt-3 text-muted">У вас пока нет заявлений</p>
+                        <a href="{% url 'create_application' %}" class="btn btn-accent btn-modern mt-2">
+                            Подать первое заявление
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <!-- Профиль -->
+            <div class="card-custom mb-4">
+                <div class="card-body p-4 text-center">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #1a237e, #283593); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                        <i class="fas fa-user" style="font-size: 2rem; color: white;"></i>
+                    </div>
+                    <h5 class="fw-bold">{{ applicant.full_name }}</h5>
+                    <p class="text-muted small">{{ applicant.user.email }}</p>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-modern btn-sm w-100">
+                        <i class="fas fa-edit me-2"></i>Редактировать
+                    </a>
+                </div>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="card-custom">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-bolt me-2"></i>Быстрые действия</h5>
+                    
+                    <a href="{% url 'create_application' %}" class="btn btn-gradient btn-modern w-100 mb-2">
+                        <i class="fas fa-plus me-2"></i>Подать заявление
+                    </a>
+                    
+                    <a href="{% url 'upload_document_page' %}" class="btn btn-outline-secondary btn-modern w-100 mb-2">
+                        <i class="fas fa-upload me-2"></i>Загрузить документы
+                    </a>
+                    
+                    <a href="{% url 'enrollment_orders' %}" class="btn btn-outline-primary btn-modern w-100 mb-2">
+                        <i class="fas fa-file-contract me-2"></i>Мои приказы
+                    </a>
+                </div>
+            </div>
+
+            <!-- Моя статистика -->
+            <div class="card-custom mt-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-chart-pie me-2"></i>Моя статистика</h5>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Всего заявлений:</span>
+                        <span class="fw-bold">{{ applications|length }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Подписано согласий:</span>
+                        <span class="fw-bold text-success">
+                            {% with signed_count=0 %}
+                                {% for app in applications %}
+                                    {% if app.is_agreement_signed %}
+                                        {% widthratio 1 1 1 as signed_count %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ signed_count }}
+                            {% endwith %}
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Статус:</span>
+                        <span class="badge bg-primary rounded-pill">{{ applicant.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

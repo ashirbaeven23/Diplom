@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Подача заявления | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-card animate__animated animate__fadeInUp">
+                <div class="text-center mb-4">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #2e7d32, #43a047); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-file-alt" style="font-size: 2rem; color: white;"></i>
+                    </div>
+                    <h3 class="fw-bold">Подача заявления</h3>
+                    <p class="text-muted">Выберите специальность, приоритет и укажите баллы ЕГЭ</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Выбор специальности -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-graduation-cap me-2 text-primary"></i>Специальность *
+                        </label>
+                        <select name="specialization" class="form-select form-control-modern" required>
+                            <option value="">Выберите специальность из списка</option>
+                            {% for spec in specializations %}
+                            <option value="{{ spec.id }}">
+                                {{ spec.code }} — {{ spec.name }}
+                                (Бюджет: {{ spec.budget_places }} | Платно: {{ spec.paid_places }} | Мин. балл: {{ spec.min_score }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Приоритет -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-sort-numeric-down me-2 text-primary"></i>Приоритет *
+                        </label>
+                        <select name="priority" class="form-select form-control-modern" required>
+                            <option value="">Выберите приоритет</option>
+                            {% if 1 not in existing_priorities %}
+                            <option value="1">🥇 Первый приоритет (основной)</option>
+                            {% endif %}
+                            {% if 2 not in existing_priorities %}
+                            <option value="2">🥈 Второй приоритет</option>
+                            {% endif %}
+                            {% if 3 not in existing_priorities %}
+                            <option value="3">🥉 Третий приоритет</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <!-- Баллы ЕГЭ -->
+                    <h5 class="fw-bold mb-3" style="color: #1a237e;">
+                        <i class="fas fa-calculator me-2"></i>Результаты ЕГЭ
+                    </h5>
+                    <p class="text-muted small mb-3">Укажите ваши баллы по предметам (от 0 до 100)</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Русский язык *</label>
+                            <input type="number" name="score_russian" class="form-control form-control-modern" 
+                                   min="0" max="100" placeholder="0-100" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Математика *</label>
+                            <input type="number" name="score_math" class="form-control form-control-modern" 
+                                   min="0" max="100" placeholder="0-100" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                Доп. предмет *
+                                <small class="text-muted">(физика/информатика/обществознание)</small>
+                            </label>
+                            <select name="extra_subject" class="form-select form-control-modern" required>
+                                <option value="">Выберите предмет</option>
+                                <option value="Информатика">Информатика</option>
+                                <option value="Обществознание">Обществознание</option>
+                                <option value="Физика">Физика</option>
+                                <option value="Английский язык">Английский язык</option>
+                                <option value="История">История</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Балл за доп. предмет *</label>
+                            <input type="number" name="score_extra" class="form-control form-control-modern" 
+                                   min="0" max="100" placeholder="0-100" required>
+                        </div>
+                    </div>
+
+                    <!-- Информационная карточка -->
+                    <div class="alert alert-info rounded-3 mb-4">
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-info-circle me-2"></i>Важно знать
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li>Вы можете подать до 3 заявлений на разные специальности</li>
+                            <li>Минимальный проходной балл для бюджета: <strong>{{ specialization.min_score|default:"100" }}</strong></li>
+                            <li>При равных баллах учитывается дата подачи заявления</li>
+                            <li>После подачи заявления не забудьте подписать согласие на зачисление</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-accent btn-modern flex-grow-1">
+                            <i class="fas fa-paper-plane me-2"></i>Подать заявление
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-modern">
+                            <i class="fas fa-times me-2"></i>Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Статистика приемной кампании {{ campaign.year }}{% endblock %}
+{% block content %}
+
+<h2 class="mb-4">📊 Статистика приемной кампании {{ campaign.year }}</h2>
+
+<!-- Общие показатели -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body text-center">
+                <h5 class="card-title">Абитуриентов</h5>
+                <h2>{{ total_applicants }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body text-center">
+                <h5 class="card-title">Заявлений</h5>
+                <h2>{{ total_applications }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body text-center">
+                <h5 class="card-title">Специальностей</h5>
+                <h2>{{ specializations_stats|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- График -->
+{% if chart %}
+<div class="card mb-4">
+    <div class="card-body text-center">
+        <img src="data:image/png;base64,{{ chart }}" alt="График" class="img-fluid">
+    </div>
+</div>
+{% endif %}
+
+<!-- Таблица статистики -->
+<div class="card">
+    <div class="card-header">
+        <h5>Детальная статистика по специальностям</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Код</th>
+                    <th>Специальность</th>
+                    <th>Всего заявлений</th>
+                    <th>С согласием</th>
+                    <th>Бюджетных мест</th>
+                    <th>Конкурс</th>
+                    <th>Средний балл</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in specializations_stats %}
+                <tr>
+                    <td>{{ stat.code }}</td>
+                    <td>{{ stat.name }}</td>
+                    <td class="text-center">{{ stat.total_applications }}</td>
+                    <td class="text-center">{{ stat.with_agreement }}</td>
+                    <td class="text-center">{{ stat.budget_places }}</td>
+                    <td class="text-center">
+                        {% if stat.competition >= 2 %}
+                        <span class="badge bg-danger">{{ stat.competition }}</span>
+                        {% elif stat.competition >= 1 %}
+                        <span class="badge bg-warning text-dark">{{ stat.competition }}</span>
+                        {% else %}
+                        <span class="badge bg-success">{{ stat.competition }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">{{ stat.avg_score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

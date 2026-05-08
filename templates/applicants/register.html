@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-card animate__animated animate__fadeInUp">
+                <div class="text-center mb-4">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #ff6f00, #ff8f00); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-user-plus" style="font-size: 2rem; color: white;"></i>
+                    </div>
+                    <h3 class="fw-bold">Регистрация абитуриента</h3>
+                    <p class="text-muted">Создайте аккаунт для подачи заявления</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <h5 class="fw-bold mb-3" style="color: #1a237e;">
+                        <i class="fas fa-user-circle me-2"></i>Данные для входа
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Логин *</label>
+                            <input type="text" name="username" class="form-control form-control-modern" 
+                                   placeholder="Придумайте логин" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email *</label>
+                            <input type="email" name="email" class="form-control form-control-modern" 
+                                   placeholder="example@mail.ru" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Пароль *</label>
+                            <input type="password" name="password" class="form-control form-control-modern" 
+                                   placeholder="Минимум 8 символов" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Повторите пароль *</label>
+                            <input type="password" name="password2" class="form-control form-control-modern" 
+                                   placeholder="Повторите пароль" required>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3" style="color: #1a237e;">
+                        <i class="fas fa-id-card me-2"></i>Личные данные
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Фамилия *</label>
+                            <input type="text" name="last_name" class="form-control form-control-modern" 
+                                   placeholder="Иванов" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Имя *</label>
+                            <input type="text" name="first_name" class="form-control form-control-modern" 
+                                   placeholder="Иван" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Отчество</label>
+                            <input type="text" name="patronymic" class="form-control form-control-modern" 
+                                   placeholder="Иванович">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Дата рождения *</label>
+                            <input type="date" name="birth_date" class="form-control form-control-modern" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Пол *</label>
+                            <select name="sex" class="form-select form-control-modern" required>
+                                <option value="">Выберите пол</option>
+                                <option value="M">Мужской</option>
+                                <option value="F">Женский</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Телефон *</label>
+                            <input type="text" name="phone" class="form-control form-control-modern" 
+                                   placeholder="+7 (900) 123-45-67" required>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info rounded-3" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        После регистрации вы сможете подать заявление на выбранную специальность и загрузить необходимые документы.
+                    </div>
+
+                    <button type="submit" class="btn btn-accent btn-modern w-100">
+                        <i class="fas fa-check-circle me-2"></i>Зарегистрироваться
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted">
+                        Уже есть аккаунт? 
+                        <a href="{% url 'login' %}" class="fw-bold text-primary">Войдите</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}КМЭиПТ - Приемная кампания{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Animate.css для анимаций -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <style>
+        :root {
+            --primary: #1a237e;
+            --primary-light: #283593;
+            --accent: #ff6f00;
+            --accent-light: #ff8f00;
+            --success: #2e7d32;
+            --info: #0277bd;
+            --warning: #f57c00;
+            --danger: #c62828;
+            --bg-light: #f5f7fa;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-light);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-top: 85px;
+        }
+
+        /* ========== ПРЕЛОАДЕР ========== */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #e0e0e0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== НАВБАР ========== */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 15px 0;
+            transition: var(--transition);
+        }
+        .navbar.scrolled {
+            padding: 8px 0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        }
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .navbar-brand i {
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 10px 20px !important;
+            border-radius: 50px;
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-link:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .nav-link.btn-nav {
+            background: var(--accent);
+            color: white !important;
+            margin-left: 10px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 111, 0, 0.3);
+        }
+        .nav-link.btn-nav:hover {
+            background: var(--accent-light);
+            box-shadow: 0 6px 20px rgba(255, 111, 0, 0.4);
+            transform: translateY(-3px);
+        }
+        .dropdown-menu {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        .dropdown-item {
+            padding: 12px 20px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .dropdown-item:hover {
+            background: var(--bg-light);
+            padding-left: 25px;
+        }
+
+        /* ========== ГЕРОЙ-СЕКЦИЯ ========== */
+        .hero-section {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 40%, #1565c0 100%);
+            padding: 80px 0 80px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 60px;
+            margin-top: -85px;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 111, 0, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        .hero-title span {
+            color: var(--accent);
+            display: block;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+        }
+        .hero-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .hero-btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 111, 0, 0.3);
+        }
+        .hero-btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(255, 111, 0, 0.4);
+            color: white;
+        }
+        .hero-btn-outline {
+            border: 2px solid white;
+            color: white;
+            margin-left: 15px;
+        }
+        .hero-btn-outline:hover {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        /* ========== КАРТОЧКИ ========== */
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        .section-subtitle {
+            color: #666;
+            margin-bottom: 40px;
+        }
+        .card-custom {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            overflow: hidden;
+            height: 100%;
+        }
+        .card-custom:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-hover-shadow);
+        }
+        .card-custom .card-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .card-custom .card-body {
+            padding: 30px;
+        }
+        .icon-blue { background: #e3f2fd; color: #1565c0; }
+        .icon-green { background: #e8f5e9; color: #2e7d32; }
+        .icon-orange { background: #fff3e0; color: #e65100; }
+        .icon-purple { background: #f3e5f5; color: #6a1b9a; }
+
+        /* ========== КНОПКИ ========== */
+        .btn-modern {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            border: none;
+        }
+        .btn-modern:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+        }
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+        }
+
+        /* ========== ТАБЛИЦЫ ========== */
+        .table-modern {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+        .table-modern thead {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+        }
+        .table-modern th {
+            padding: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        .table-modern td {
+            padding: 15px 18px;
+            vertical-align: middle;
+        }
+        .table-modern tbody tr {
+            transition: var(--transition);
+        }
+        .table-modern tbody tr:hover {
+            background: #f8f9ff;
+        }
+        .table-success-row {
+            background: #e8f5e9 !important;
+            border-left: 4px solid #2e7d32;
+        }
+
+        /* ========== ФОРМЫ ========== */
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 40px;
+        }
+        .form-control-modern {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .form-control-modern:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(26, 35, 126, 0.1);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        /* ========== СТАТУСЫ / БЕЙДЖИ ========== */
+        .badge-status {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .badge-draft { background: #f5f5f5; color: #666; }
+        .badge-submitted { background: #e3f2fd; color: #1565c0; }
+        .badge-agreement { background: #fff3e0; color: #e65100; }
+        .badge-recommended { background: #e8f5e9; color: #2e7d32; }
+        .badge-accepted { background: #c8e6c9; color: #1b5e20; }
+
+        /* ========== ФУТЕР ========== */
+        .footer {
+            background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%);
+            color: white;
+            padding: 60px 0 20px;
+            margin-top: 80px;
+        }
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .footer a:hover {
+            color: var(--accent);
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            margin-top: 40px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* ========== АНИМАЦИИ ========== */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .stagger-item:nth-child(1) { animation-delay: 0.1s; }
+        .stagger-item:nth-child(2) { animation-delay: 0.2s; }
+        .stagger-item:nth-child(3) { animation-delay: 0.3s; }
+        .stagger-item:nth-child(4) { animation-delay: 0.4s; }
+
+        /* ========== АДАПТИВ ========== */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            .hero-section {
+                margin-top: -70px;
+                padding: 60px 0 60px;
+            }
+            .hero-title { font-size: 2rem; }
+            .hero-title span { font-size: 1.3rem; }
+            .hero-btn-outline { margin-left: 0; margin-top: 10px; }
+            .navbar { padding: 10px 0; }
+        }
+
+        /* ========== ПРОКРУТКА ВВЕРХ ========== */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(255, 111, 0, 0.3);
+            transition: var(--transition);
+            opacity: 0;
+            visibility: hidden;
+        }
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 111, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Прелоадер -->
+    <div class="preloader" id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg fixed-top" id="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-graduation-cap"></i> КМЭиПТ
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-1"></i> Главная
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-1"></i> Личный кабинет
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'statistics' %}">
+                            <i class="fas fa-chart-bar me-1"></i> Статистика
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'enrollment_orders' %}">
+                            <i class="fas fa-file-contract me-1"></i> Приказы
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            {{ user.get_full_name|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-cog me-2"></i>Профиль</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Выйти</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn-nav" href="{% url 'register' %}">
+                            <i class="fas fa-user-plus me-1"></i> Регистрация
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <main>
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-graduation-cap me-2"></i>КМЭиПТ
+                    </h5>
+                    <p class="text-white-50">Колледж мировой экономики и передовых технологий — ваш путь к успешной карьере.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold mb-3">Контакты</h5>
+                    <p class="text-white-50"><i class="fas fa-map-marker-alt me-2"></i>г. Москва, ул. Примерная, 123</p>
+                    <p class="text-white-50"><i class="fas fa-phone me-2"></i>+7 (495) 123-45-67</p>
+                    <p class="text-white-50"><i class="fas fa-envelope me-2"></i>info@college.ru</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold mb-3">Приемная кампания</h5>
+                    <p class="text-white-50">Подайте заявление онлайн и следите за рейтингом в реальном времени.</p>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="btn btn-accent btn-modern">Подать заявление</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="mb-0">&copy; 2026 Колледж мировой экономики и передовых технологий. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Кнопка прокрутки вверх -->
+    <button class="scroll-to-top" id="scrollToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Прелоадер
+        window.addEventListener('load', () => {
+            document.getElementById('preloader').classList.add('hidden');
+        });
+
+        // Изменение навбара при прокрутке
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            const scrollBtn = document.getElementById('scrollToTop');
+            
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+                scrollBtn.classList.add('visible');
+            } else {
+                navbar.classList.remove('scrolled');
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
+        // Прокрутка вверх
+        document.getElementById('scrollToTop').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Анимация появления при скролле
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-up');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        document.querySelectorAll('.card-custom, .form-card, .table-modern').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

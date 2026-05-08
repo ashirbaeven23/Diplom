@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Статистика | Панель управления КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Заголовок -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-chart-bar me-2"></i>Статистика
+            </h2>
+            <p class="text-muted mb-0">Аналитика приемной кампании</p>
+        </div>
+        <a href="{% url 'staff_dashboard' %}" class="btn btn-outline-primary btn-modern">
+            <i class="fas fa-arrow-left me-2"></i>Назад
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Распределение по полу -->
+        <div class="col-lg-6">
+            <div class="card-custom">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fas fa-venus-mars me-2"></i>Распределение по полу
+                    </h5>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="p-4 rounded-4" style="background: #e3f2fd;">
+                                <i class="fas fa-male fa-3x text-primary mb-3"></i>
+                                <h2 class="fw-bold text-primary">{{ male_count }}</h2>
+                                <p class="text-muted mb-0">Мужчины</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-4 rounded-4" style="background: #fce4ec;">
+                                <i class="fas fa-female fa-3x text-danger mb-3"></i>
+                                <h2 class="fw-bold text-danger">{{ female_count }}</h2>
+                                <p class="text-muted mb-0">Женщины</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Средний балл по специальностям -->
+        <div class="col-lg-6">
+            <div class="card-custom">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fas fa-calculator me-2"></i>Средний балл по специальностям
+                    </h5>
+                    
+                    {% for spec in specs_avg %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="fw-bold">{{ spec.code }}</small>
+                            <small class="text-muted">{{ spec.avg_score }} баллов</small>
+                        </div>
+                        <div class="progress" style="height: 10px; border-radius: 10px;">
+                            <div class="progress-bar bg-success" 
+                                 style="width: {% widthratio spec.avg_score 100 100 %}%;">
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ spec.name }}</small>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">Нет данных</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Распределение по статусам -->
+        <div class="col-12">
+            <div class="card-custom">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fas fa-list-ol me-2"></i>Распределение по статусам
+                    </h5>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Статус</th>
+                                    <th>Количество</th>
+                                    <th>Процент</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for status in status_distribution %}
+                                <tr>
+                                    <td><strong>{{ status.name }}</strong></td>
+                                    <td>
+                                        <span class="fw-bold">{{ status.count }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height: 8px; border-radius: 10px;">
+                                                <div class="progress-bar bg-primary" 
+                                                     style="width: {{ status.count }}%;">
+                                                </div>
+                                            </div>
+                                            <small>{{ status.count }}%</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

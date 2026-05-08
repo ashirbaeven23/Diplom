@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Приказы о зачислении | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Заголовок -->
+    <div class="card-custom mb-4" style="background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white;">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">
+                        <i class="fas fa-file-contract me-2"></i>Приказы о зачислении
+                    </h2>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.7);">
+                        Приемная кампания {{ campaign.year|default:"" }}
+                    </p>
+                </div>
+                {% if user.is_staff %}
+                <button class="btn btn-accent btn-modern" data-bs-toggle="modal" data-bs-target="#createOrderModal">
+                    <i class="fas fa-plus me-2"></i>Создать приказ
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Список приказов -->
+    <div class="row g-4">
+        {% if orders %}
+            {% for order in orders %}
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">Приказ №{{ order.order_number }}</h5>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>{{ order.order_date|date:"d.m.Y" }}
+                                </small>
+                            </div>
+                            <span class="badge bg-success rounded-pill fs-6">
+                                <i class="fas fa-check-circle me-1"></i>
+                                {{ order.applications.count }} зачислено
+                            </span>
+                        </div>
+                        
+                        {% if user.is_staff %}
+                        <!-- Сотрудник видит весь список -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold small text-muted mb-2">Зачисленные абитуриенты:</h6>
+                            {% for app in order.applications.all %}
+                            <div class="d-flex align-items-center mb-2 p-2 rounded-2" style="background: #f8f9ff;">
+                                <i class="fas fa-user-check text-success me-2"></i>
+                                <div>
+                                    <span class="fw-bold">{{ app.applicant.full_name }}</span>
+                                    <small class="text-muted d-block">{{ app.specialization.name }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'download_order' order.id %}" class="btn btn-outline-primary btn-modern btn-sm w-100">
+                            <i class="fas fa-download me-2"></i>Скачать PDF
+                        </a>
+                        
+                        {% else %}
+                        <!-- Абитуриент видит только информацию о своём зачислении -->
+                        <div class="alert alert-success rounded-3 mb-3">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-trophy me-2"></i>Поздравляем с зачислением!
+                            </h6>
+                            <p class="mb-0">Вы зачислены приказом №{{ order.order_number }} от {{ order.order_date|date:"d.m.Y" }} г.</p>
+                        </div>
+                        <a href="{% url 'download_order' order.id %}" class="btn btn-outline-success btn-modern btn-sm w-100">
+                            <i class="fas fa-download me-2"></i>Скачать выписку (PDF)
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <div class="card-custom">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-folder-open" style="font-size: 4rem; color: #ccc;"></i>
+                    <h5 class="mt-3">Приказов пока нет</h5>
+                    <p class="text-muted">
+                        {% if user.is_staff %}
+                        Приказы о зачислении появятся после завершения конкурсного отбора
+                        {% else %}
+                        Информация о зачислении появится после выхода приказа
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Модальное окно создания приказа (только для staff) -->
+    {% if user.is_staff %}
+    <div class="modal fade" id="createOrderModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content rounded-4">
+                <div class="modal-header" style="background: linear-gradient(135deg, #1a237e, #283593); color: white; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-plus-circle me-2"></i>Создание приказа о зачислении
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="{% url 'create_order' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Номер приказа *</label>
+                                <input type="text" name="order_number" class="form-control form-control-modern" 
+                                       placeholder="Например: 001-ОД" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Дата приказа *</label>
+                                <input type="date" name="order_date" class="form-control form-control-modern" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Специальность *</label>
+                                <select name="specialization" class="form-select form-control-modern" required>
+                                    <option value="">Выберите специальность</option>
+                                    {% for spec in specializations %}
+                                    <option value="{{ spec.id }}">{{ spec.code }} — {{ spec.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info rounded-3 mt-3 small">
+                            <i class="fas fa-info-circle me-2"></i>
+                            В приказ автоматически попадут абитуриенты с подписанным согласием, ранжированные по сумме баллов, в пределах бюджетных мест.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Отмена
+                        </button>
+                        <button type="submit" class="btn btn-accent btn-modern">
+                            <i class="fas fa-check me-2"></i>Создать приказ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

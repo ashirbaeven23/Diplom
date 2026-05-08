@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Загрузка документов | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="form-card animate__animated animate__fadeInUp">
+                <div class="text-center mb-4">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #1565c0, #1976d2); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-upload" style="font-size: 2rem; color: white;"></i>
+                    </div>
+                    <h3 class="fw-bold">Загрузка документов</h3>
+                    <p class="text-muted">Прикрепите сканы или фото необходимых документов</p>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-tag me-2 text-primary"></i>Тип документа *
+                        </label>
+                        <select name="doc_type" class="form-select form-control-modern" required>
+                            <option value="">Выберите тип документа</option>
+                            <option value="passport">📄 Паспорт (разворот с фото)</option>
+                            <option value="diploma">🎓 Аттестат об образовании</option>
+                            <option value="snils">💳 СНИЛС</option>
+                            <option value="photo">📸 Фотография 3×4</option>
+                            <option value="other">📎 Другой документ</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-file me-2 text-primary"></i>Файл *
+                        </label>
+                        <input type="file" name="file" class="form-control form-control-modern" 
+                               accept=".pdf,.jpg,.jpeg,.png" required>
+                        <small class="text-muted">Поддерживаются: PDF, JPG, PNG (до 10 МБ)</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-accent btn-modern w-100">
+                        <i class="fas fa-upload me-2"></i>Загрузить документ
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if attachments %}
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-7">
+            <div class="card-custom">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-paperclip me-2"></i>Загруженные документы
+                    </h5>
+                    {% for doc in attachments %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded-3" 
+                         style="background: #f8f9ff;">
+                        <div>
+                            <i class="fas fa-file me-2 text-primary"></i>
+                            <strong>{{ doc.get_doc_type_display }}</strong>
+                            <small class="text-muted d-block">{{ doc.uploaded_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        {% if doc.is_verified %}
+                        <span class="badge bg-success rounded-pill">✅ Проверен</span>
+                        {% else %}
+                        <span class="badge bg-warning rounded-pill">⏳ На проверке</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

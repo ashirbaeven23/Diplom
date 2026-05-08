@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Профиль | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-card animate__animated animate__fadeInUp">
+                <div class="text-center mb-4">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #1a237e, #283593); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-user" style="font-size: 2.5rem; color: white;"></i>
+                    </div>
+                    <h3 class="fw-bold">Редактирование профиля</h3>
+                    <p class="text-muted">{{ applicant.full_name }}</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <h5 class="fw-bold mb-3" style="color: #1a237e;">
+                        <i class="fas fa-id-card me-2"></i>Личные данные
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Фамилия</label>
+                            <input type="text" name="last_name" class="form-control form-control-modern" 
+                                   value="{{ user.last_name }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Имя</label>
+                            <input type="text" name="first_name" class="form-control form-control-modern" 
+                                   value="{{ user.first_name }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Отчество</label>
+                            <input type="text" name="patronymic" class="form-control form-control-modern" 
+                                   value="{{ applicant.patronymic }}">
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3" style="color: #1a237e;">
+                        <i class="fas fa-address-book me-2"></i>Контакты
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control form-control-modern" 
+                                   value="{{ user.email }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Телефон</label>
+                            <input type="text" name="phone" class="form-control form-control-modern" 
+                                   value="{{ applicant.phone }}">
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3" style="color: #1a237e;">
+                        <i class="fas fa-passport me-2"></i>Документы
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Серия паспорта</label>
+                            <input type="text" name="passport_series" class="form-control form-control-modern" 
+                                   value="{{ applicant.passport_series }}" placeholder="0000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Номер паспорта</label>
+                            <input type="text" name="passport_number" class="form-control form-control-modern" 
+                                   value="{{ applicant.passport_number }}" placeholder="000000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">СНИЛС</label>
+                            <input type="text" name="snils" class="form-control form-control-modern" 
+                                   value="{{ applicant.snils }}" placeholder="000-000-000 00">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Адрес</label>
+                        <textarea name="address" class="form-control form-control-modern" rows="2" 
+                                  placeholder="Введите полный адрес">{{ applicant.address }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-gradient btn-modern">
+                        <i class="fas fa-save me-2"></i>Сохранить изменения
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

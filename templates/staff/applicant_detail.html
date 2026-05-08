@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% block title %}Карточка абитуриента | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Навигация -->
+    <div class="mb-3">
+        <a href="{% url 'staff_applicants' %}" class="text-decoration-none">
+            <i class="fas fa-arrow-left me-2"></i>Вернуться к списку
+        </a>
+    </div>
+
+    <!-- Заголовок -->
+    <div class="card-custom mb-4" style="background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white;">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1">{{ applicant.full_name }}</h2>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.7);">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ applicant.birth_date|date:"d.m.Y" }} г.р.
+                        &nbsp;|&nbsp;
+                        <i class="fas fa-venus-mars me-1"></i>
+                        {{ applicant.get_sex_display }}
+                    </p>
+                </div>
+                <div>
+                    {% if applicant.status == 'accepted' %}
+                    <span class="badge bg-success fs-6 px-4 py-2">✅ Зачислен</span>
+                    {% elif applicant.status == 'rejected' %}
+                    <span class="badge bg-danger fs-6 px-4 py-2">❌ Отказ</span>
+                    {% else %}
+                    <span class="badge bg-warning fs-6 px-4 py-2">{{ applicant.get_status_display }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Основная информация -->
+        <div class="col-lg-8">
+            
+            <!-- Заявления -->
+            <div class="card-custom mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-file-alt me-2"></i>Заявления
+                    </h5>
+                    
+                    {% if applications %}
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Специальность</th>
+                                    <th>Приоритет</th>
+                                    <th>Статус</th>
+                                    <th>Баллы</th>
+                                    <th>Согласие</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in applications %}
+                                <tr>
+                                    <td><strong>{{ app.specialization.name }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-info rounded-pill">
+                                            {{ app.get_priority_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ app.get_status_display }}</td>
+                                    <td>
+                                        <span class="fw-bold text-primary">
+                                            {{ app.total_score|default:"0" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if app.is_agreement_signed %}
+                                        <i class="fas fa-check-circle text-success"></i> Подписано
+                                        {% else %}
+                                        <i class="fas fa-times-circle text-danger"></i> Не подписано
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#examModal{{ app.pk }}">
+                                            <i class="fas fa-plus me-1"></i>Баллы
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">Нет заявлений</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Результаты экзаменов -->
+            <div class="card-custom mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-clipboard-check me-2"></i>Все результаты экзаменов
+                    </h5>
+                    
+                    {% with all_exams=applicant.applications.all %}
+                    <div class="table-responsive">
+                        <table class="table table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Заявление</th>
+                                    <th>Предмет</th>
+                                    <th>Балл</th>
+                                    <th>Тип</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in applications %}
+                                    {% for exam in app.exam_results.all %}
+                                    <tr>
+                                        <td>{{ app.specialization.code }}</td>
+                                        <td>{{ exam.subject }}</td>
+                                        <td>
+                                            <span class="fw-bold text-primary">{{ exam.score }}</span>
+                                        </td>
+                                        <td>
+                                            {% if exam.is_ege %}
+                                            <span class="badge bg-info">ЕГЭ</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">Внутр.</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">
+                                            Нет результатов экзаменов
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <!-- Контактная информация -->
+            <div class="card-custom mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-address-card me-2"></i>Контактные данные
+                    </h5>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Телефон</small>
+                        <p class="fw-bold mb-0">
+                            <i class="fas fa-phone text-primary me-2"></i>{{ applicant.phone }}
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Email</small>
+                        <p class="fw-bold mb-0">
+                            <i class="fas fa-envelope text-primary me-2"></i>{{ applicant.user.email }}
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Паспорт</small>
+                        <p class="fw-bold mb-0">
+                            <i class="fas fa-passport text-primary me-2"></i>
+                            {{ applicant.passport_series|default:"—" }} {{ applicant.passport_number|default:"" }}
+                        </p>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <small class="text-muted">СНИЛС</small>
+                        <p class="fw-bold mb-0">
+                            <i class="fas fa-id-card text-primary me-2"></i>{{ applicant.snils|default:"—" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Документы -->
+            <div class="card-custom mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-paperclip me-2"></i>Документы
+                    </h5>
+                    
+                    {% if attachments %}
+                    <div class="list-group list-group-flush">
+                        {% for doc in attachments %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <i class="fas fa-file me-2 text-primary"></i>
+                                {{ doc.get_doc_type_display }}
+                                <small class="text-muted d-block">{{ doc.uploaded_at|date:"d.m.Y" }}</small>
+                            </div>
+                            {% if doc.is_verified %}
+                            <span class="badge bg-success rounded-pill">
+                                <i class="fas fa-check me-1"></i>Проверен
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning rounded-pill">
+                                <i class="fas fa-clock me-1"></i>Не проверен
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">Нет загруженных документов</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Модальные окна для добавления баллов -->
+{% for app in applications %}
+<div class="modal fade" id="examModal{{ app.pk }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1a237e, #283593); color: white; border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-plus-circle me-2"></i>Добавить результат
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'add_exam_result' app.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Предмет</label>
+                        <select name="subject" class="form-select form-control-modern" required>
+                            <option value="">Выберите предмет</option>
+                            <option value="Математика">Математика</option>
+                            <option value="Русский язык">Русский язык</option>
+                            <option value="Обществознание">Обществознание</option>
+                            <option value="Информатика">Информатика</option>
+                            <option value="Английский язык">Английский язык</option>
+                            <option value="Физика">Физика</option>
+                            <option value="История">История</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Балл (0-100)</label>
+                        <input type="number" name="score" class="form-control form-control-modern" 
+                               min="0" max="100" required>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_ege" id="isEge{{ app.pk }}" checked>
+                        <label class="form-check-label" for="isEge{{ app.pk }}">
+                            Результат ЕГЭ
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-accent btn-modern">
+                        <i class="fas fa-save me-2"></i>Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

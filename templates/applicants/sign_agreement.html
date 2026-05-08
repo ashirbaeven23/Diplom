@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Подписание согласия | КМЭиПТ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="form-card animate__animated animate__fadeInUp">
+                <div class="text-center mb-4">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #2e7d32, #43a047); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-check-circle" style="font-size: 2.5rem; color: white;"></i>
+                    </div>
+                    <h3 class="fw-bold">Подписание согласия на зачисление</h3>
+                </div>
+
+                <div class="alert alert-warning rounded-3 mb-4">
+                    <h6 class="fw-bold">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Внимание!
+                    </h6>
+                    <p class="mb-0">Подписывая согласие, вы подтверждаете свое намерение быть зачисленным именно на эту специальность. Это действие нельзя отменить через личный кабинет.</p>
+                </div>
+
+                <div class="card-custom mb-4" style="background: #f5f7fa;">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">Детали заявления</h6>
+                        <p class="mb-2"><strong>Специальность:</strong> {{ application.specialization.name }}</p>
+                        <p class="mb-2"><strong>Код:</strong> {{ application.specialization.code }}</p>
+                        <p class="mb-2"><strong>Приоритет:</strong> {{ application.get_priority_display }}</p>
+                        <p class="mb-0"><strong>Факультет:</strong> {{ application.specialization.faculty }}</p>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success btn-modern flex-grow-1">
+                            <i class="fas fa-check me-2"></i>Подписать согласие
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-danger btn-modern">
+                            <i class="fas fa-times me-2"></i>Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

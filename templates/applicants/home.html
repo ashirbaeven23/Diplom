@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}КМЭиПТ - Главная{% endblock %}
+
+{% block content %}
+
+<!-- Герой-секция -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="hero-title animate__animated animate__fadeInLeft">
+                    Колледж мировой экономики
+                    <span>и передовых технологий</span>
+                </h1>
+                <p class="hero-subtitle animate__animated animate__fadeInLeft animate__delay-1s">
+                    Начните свою карьеру с качественного образования. Приемная кампания 
+                    <strong>{{ active_campaign.year|default:"2026" }}</strong> уже открыта!
+                </p>
+                <div class="animate__animated animate__fadeInUp animate__delay-2s">
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="hero-btn hero-btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Подать заявление
+                    </a>
+                    <a href="#specialties" class="hero-btn hero-btn-outline">
+                        <i class="fas fa-list me-2"></i>Специальности
+                    </a>
+                    {% else %}
+                    <a href="{% url 'dashboard' %}" class="hero-btn hero-btn-primary">
+                        <i class="fas fa-tachometer-alt me-2"></i>Личный кабинет
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <i class="fas fa-graduation-cap" style="font-size: 200px; color: rgba(255,255,255,0.15);"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Преимущества -->
+<section class="container mb-5" id="advantages">
+    <div class="text-center mb-5">
+        <h2 class="section-title">Почему выбирают нас</h2>
+        <p class="section-subtitle">Преимущества обучения в нашем колледже</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-3 stagger-item">
+            <div class="card-custom">
+                <div class="card-body text-center">
+                    <div class="card-icon icon-blue mx-auto">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h5 class="fw-bold">Современные технологии</h5>
+                    <p class="text-muted">Обучение на новейшем оборудовании с использованием IT-технологий</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 stagger-item">
+            <div class="card-custom">
+                <div class="card-body text-center">
+                    <div class="card-icon icon-green mx-auto">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h5 class="fw-bold">Практика с 1 курса</h5>
+                    <p class="text-muted">Стажировки в ведущих компаниях-партнерах с первого года обучения</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 stagger-item">
+            <div class="card-custom">
+                <div class="card-body text-center">
+                    <div class="card-icon icon-orange mx-auto">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5 class="fw-bold">Карьерный рост</h5>
+                    <p class="text-muted">95% выпускников трудоустраиваются по специальности в первый год</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 stagger-item">
+            <div class="card-custom">
+                <div class="card-body text-center">
+                    <div class="card-icon icon-purple mx-auto">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5 class="fw-bold">Сильное комьюнити</h5>
+                    <p class="text-muted">Студенческое сообщество, хакатоны, конференции и спорт</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Специальности -->
+<section class="container mb-5" id="specialties">
+    <div class="text-center mb-5">
+        <h2 class="section-title">Наши специальности</h2>
+        <p class="section-subtitle">Выберите направление для поступления</p>
+    </div>
+    <div class="row g-4">
+        {% for spec in specializations %}
+        <div class="col-lg-4 col-md-6 stagger-item">
+            <div class="card-custom">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-primary rounded-pill">{{ spec.code }}</span>
+                        {% if spec.budget_places > 0 %}
+                        <span class="badge bg-success rounded-pill">{{ spec.budget_places }} бюдж. мест</span>
+                        {% endif %}
+                    </div>
+                    <h5 class="fw-bold mb-3">{{ spec.name }}</h5>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-building me-2"></i>{{ spec.faculty }}
+                    </p>
+                    <p class="text-muted small mb-4">{{ spec.description|truncatewords:15 }}</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'rating' spec.id %}" class="btn btn-outline-primary btn-modern flex-grow-1">
+                            <i class="fas fa-list-ol me-2"></i>Рейтинг
+                        </a>
+                        <a href="{% url 'rating' spec.id %}#export" class="btn btn-outline-success btn-modern">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-folder-open" style="font-size: 4rem; color: #ccc;"></i>
+            <p class="mt-3 text-muted">Специальности пока не добавлены</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Призыв к действию -->
+<section class="container mb-5">
+    <div class="card-custom" style="background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white;">
+        <div class="card-body text-center p-5">
+            <h2 class="fw-bold mb-3">Готовы начать обучение?</h2>
+            <p class="mb-4" style="color: rgba(255,255,255,0.8);">Подайте заявление прямо сейчас и сделайте первый шаг к успешной карьере!</p>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="hero-btn hero-btn-primary" style="display: inline-block;">
+                <i class="fas fa-rocket me-2"></i>Зарегистрироваться
+            </a>
+            {% else %}
+            <a href="{% url 'create_application' %}" class="hero-btn hero-btn-primary" style="display: inline-block;">
+                <i class="fas fa-file-alt me-2"></i>Подать заявление
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
